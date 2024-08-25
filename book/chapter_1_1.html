@@ -1,0 +1,443 @@
+<!DOCTYPE HTML>
+<html lang="en" class="dark" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>How to get ESAPI talk 2 TPM?</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('dark')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><div>System S3cur1ty</div></li><li class="chapter-item expanded "><a href="chapter_main.html">Trusted Platform Module (TPM)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_1.html">Enhanced System API (ESAPI)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_1_1.html" class="active">How to get ESAPI talk 2 TPM?</a></li><li class="chapter-item "><a href="chapter_1_2.html">Primary key generation using ESAPI</a></li><li class="chapter-item "><a href="chapter_1_3.html">Child key generation using ESAPI</a></li><li class="chapter-item "><a href="chapter_1_4.html">Enabling Parameter Encryption using ESAPI</a></li></ol></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="esapi-talking-to-tpm"><a class="header" href="#esapi-talking-to-tpm">ESAPI talking to TPM</a></h1>
+<p>The <strong>ESYS context</strong> <strong>(<code>_CONTEXT *ctx</code>)</strong> in TPM2 (Trusted Platform Module) is essentially a structure that holds the data required to communicate with the TPM. This context allows you to perform various operations, such as managing keys, handling sessions, and interacting with the TPM's objects.</p>
+<ol>
+<li>
+<p><strong>Context Structure (<code>_CONTEXT *ctx</code>)</strong>:</p>
+<ul>
+<li>It stores <strong>metadata</strong> related to the TPM session. This includes:
+<ul>
+<li><strong>Transient keys</strong>: Short-lived keys stored in the TPM's memory.</li>
+<li><strong>Persistent objects</strong>: Long-term data stored in the TPM (e.g., encryption keys, certificates).</li>
+<li><strong>NV (Non-Volatile) indexes</strong>: Data stored in TPM that persists across reboots.</li>
+<li><strong>Sessions</strong>: A means to track interactions with the TPM, such as encrypted communication or auditing.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Initialization</strong>:</p>
+<ul>
+<li>The context is initialized using the <code>Esys_Initialize()</code> function. This connects your application to the TPM.</li>
+<li>Example:
+<pre><code class="language-c">ESYS_CONTEXT *ctx;
+TSS2_TCTI_CONTEXT *tcti;
+Esys_Initialize(&amp;ctx, tcti, NULL);
+</code></pre>
+In this case, <code>ctx</code> is the handle for the ESYS context. <code>tcti</code> represents the TCTI (Transmission Interface), which defines how your system interacts with the TPM hardware or simulator.</li>
+</ul>
+</li>
+<li>
+<p><strong>TCTI Context</strong>:</p>
+<ul>
+<li>If <code>tcti</code> is <strong>NULL</strong>, the TCTI loader will automatically attempt to detect the most common TPM interfaces, which is useful in generic setups.</li>
+<li>Example:
+<pre><code class="language-c">Esys_Initialize(&amp;ctx, NULL, NULL);
+</code></pre>
+This will initialize the TPM communication interface without explicitly specifying the TCTI context. The system tries standard interfaces (e.g., device drivers, socket connections).</li>
+</ul>
+</li>
+<li>
+<p><strong>Return Codes</strong>:</p>
+<ul>
+<li>Every <strong>ESAPI</strong> (Enhanced System API) call returns a status code that must be checked to ensure success. The code <code>TSS2_RC_SUCCESS</code> indicates that the function executed correctly.</li>
+<li>Always verify the return code after an API call:
+<pre><code class="language-c">TSS2_RC rc = Esys_Initialize(&amp;ctx, NULL, NULL);
+if (rc != TSS2_RC_SUCCESS) {
+    // Handle error
+}
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>TPM2 Simulator</strong>:</p>
+<ul>
+<li>When working with a TPM2 simulator (e.g., for development or testing), the TPM must be initialized with a <strong>startup command</strong> to become operational.</li>
+<li>The command <code>Esys_Startup(ctx, TPM2_SU_CLEAR)</code> starts the TPM and ensures it is ready to process commands.</li>
+<li>Example:
+<pre><code class="language-c">rc = Esys_Startup(ctx, TPM2_SU_CLEAR);
+if (rc != TSS2_RC_SUCCESS) {
+    // Handle startup failure
+}
+</code></pre>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="real-world-example"><a class="header" href="#real-world-example">Real-World Example:</a></h3>
+<p>Consider an application that initializes a TPM context, loads a key, and interacts with the TPM to encrypt data. It might look like this:</p>
+<ol>
+<li>
+<p><strong>Initialize the TPM context</strong>:</p>
+<pre><code class="language-c">ESYS_CONTEXT *ctx;
+TSS2_RC rc = Esys_Initialize(&amp;ctx, NULL, NULL);
+if (rc != TSS2_RC_SUCCESS) {
+    // Initialization failed
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Start the TPM (if using a simulator)</strong>:</p>
+<pre><code class="language-c">rc = Esys_Startup(ctx, TPM2_SU_CLEAR);
+if (rc != TSS2_RC_SUCCESS) {
+    // TPM startup failed
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Use the context to perform operations (e.g., load a key, sign data)</strong>:</p>
+<pre><code class="language-c">// Perform other operations using ctx (like loading transient keys, handling sessions, etc.)
+</code></pre>
+</li>
+</ol>
+<blockquote>
+<ul>
+<li><strong>ESYS context</strong> is central to managing TPM operations, providing a secure way to interact with keys, sessions, and persistent objects.</li>
+<li>Correct initialization and checking return codes are critical to ensuring smooth communication with the TPM.</li>
+<li>When using a TPM simulator, always ensure that the TPM is started correctly using the <code>Esys_Startup</code> function.</li>
+</ul>
+</blockquote>
+<h3 id="defining-our-own-tcti-parameters-when-using-a-tpm-simulator-as-well-as-requesting-random-bytes-from-the-tpm-using-esys_getrandom"><a class="header" href="#defining-our-own-tcti-parameters-when-using-a-tpm-simulator-as-well-as-requesting-random-bytes-from-the-tpm-using-esys_getrandom">Defining our own <strong>TCTI parameters</strong> when using a TPM simulator, as well as requesting random bytes from the TPM using <strong><code>Esys_GetRandom</code></strong>.</a></h3>
+<ol>
+<li>
+<p><strong>Defining Custom TCTI Parameters</strong>:</p>
+<ul>
+<li>When interacting with a TPM simulator, it is necessary to define your own <strong>TCTI</strong> (Transmission Interface) parameters to specify how your application connects to the simulator.</li>
+<li>In this case, the <code>TSS2_TCTI_CONTEXT *tcti</code> is used to represent the communication context for the TPM.</li>
+</ul>
+<p>Example of defining TCTI parameters:</p>
+<pre><code class="language-c">TSS2_TCTI_CONTEXT *tcti;
+Tss2_TctiLdr_Initialize("mssim:host=127.0.0.1,port=2321", &amp;tcti);
+</code></pre>
+<ul>
+<li><strong>"mssim:host=127.0.0.1, port=2321"</strong>: Specifies that we are using a TPM simulator running on <code>localhost</code> (127.0.0.1) with communication on port 2321.</li>
+<li><strong>tcti</strong>: This structure is populated with the TCTI context and is necessary to connect the application with the TPM simulator.</li>
+</ul>
+</li>
+<li>
+<p><strong>Using TCTI with ESYS Context</strong>:</p>
+<ul>
+<li>After defining and initializing the TCTI context, it is used as the second argument in the <strong>ESYS context</strong> initialization.</li>
+<li>This step is critical as it connects your ESYS API calls with the specific TPM communication interface.</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-c">ESYS_CONTEXT *ctx;
+Tss2_TctiLdr_Initialize("mssim:host=127.0.0.1,port=2321", &amp;tcti); // TCTI initialized
+Esys_Initialize(&amp;ctx, tcti, NULL); // ESYS context initialized using the TCTI context
+</code></pre>
+</li>
+<li>
+<p><strong>Requesting Random Bytes from the TPM</strong>:</p>
+<ul>
+<li>Once the TPM simulator is set up and the connection via TCTI is established, we can request random bytes from the TPM using the <strong>Esys_GetRandom</strong> function.</li>
+<li>The function requests a specified number of random bytes and stores them in the provided buffer.</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-c">UINT8 *random_bytes;
+TSS2_RC rc = Esys_GetRandom(ctx, ESYS_TR_NONE, ESYS_TR_NONE, ESYS_TR_NONE, RANDOM_BYTES_COUNT, &amp;random_bytes);
+if (rc != TSS2_RC_SUCCESS) {
+    // Handle error in fetching random bytes
+}
+</code></pre>
+<ul>
+<li><strong>Esys_GetRandom()</strong>: This function requests random bytes from the TPM.</li>
+<li><strong><code>ctx</code></strong>: The ESYS context, which is required for the operation.</li>
+<li><strong><code>ESYS_TR_NONE</code></strong> (three times): These are placeholders for TPM sessions. In this case, no TPM sessions are used.</li>
+<li><strong><code>RANDOM_BYTES_COUNT</code></strong>: The number of random bytes being requested.</li>
+<li><strong><code>&amp;random_bytes</code></strong>: A pointer to store the random bytes fetched from the TPM.</li>
+</ul>
+</li>
+<li>
+<p><strong>TPM Sessions as Placeholders</strong>:</p>
+<ul>
+<li>The arguments in green (<code>ESYS_TR_NONE</code>) are placeholders for TPM sessions. These sessions are often used for secure, encrypted, or authenticated communication. However, in this example, no TPM session is used, so we pass <code>ESYS_TR_NONE</code> for each placeholder.</li>
+</ul>
+</li>
+<li>
+<p><strong>ESAPI Functions Documentation</strong>:</p>
+<ul>
+<li>For detailed documentation and to explore more ESAPI (Enhanced System API) functions, you can refer to the official documentation:
+<ul>
+<li><strong>Random bytes request</strong>: <a href="https://tpm2-tss.readthedocs.io/en/2.4.5/group__esys__getrandom.html">Esys_GetRandom</a></li>
+<li><strong>General ESAPI functions</strong>: <a href="https://tpm2-tss.readthedocs.io/en/2.4.5/group__esys__tpm.html">ESAPI Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="real-world-example-1"><a class="header" href="#real-world-example-1">Real-World Example:</a></h3>
+<ol>
+<li>
+<p><strong>Initialize TCTI context for TPM Simulator</strong>:</p>
+<pre><code class="language-c">TSS2_TCTI_CONTEXT *tcti;
+Tss2_TctiLdr_Initialize("mssim:host=127.0.0.1,port=2321", &amp;tcti);  // Connect to simulator
+</code></pre>
+</li>
+<li>
+<p><strong>Initialize ESYS context using TCTI</strong>:</p>
+<pre><code class="language-c">ESYS_CONTEXT *ctx;
+TSS2_RC rc = Esys_Initialize(&amp;ctx, tcti, NULL); // Use TCTI in ESYS initialization
+if (rc != TSS2_RC_SUCCESS) {
+    // Handle initialization failure
+}
+</code></pre>
+</li>
+<li>
+<p><strong>Request random bytes from the TPM</strong>:</p>
+<pre><code class="language-c">UINT8 *random_bytes;
+rc = Esys_GetRandom(ctx, ESYS_TR_NONE, ESYS_TR_NONE, ESYS_TR_NONE, 16, &amp;random_bytes); // Request 16 random bytes
+if (rc != TSS2_RC_SUCCESS) {
+    // Handle error in fetching random bytes
+} else {
+    // Use the random bytes
+}
+</code></pre>
+</li>
+</ol>
+<blockquote>
+<ul>
+<li><strong>TCTI</strong> context setup is required when using a TPM simulator, as it defines how your application interacts with the TPM.</li>
+<li><strong>Esys_GetRandom</strong> allows for fetching random bytes from the TPM, which can be useful for cryptographic operations.</li>
+<li>It's important to manage sessions, initialize the TPM properly, and ensure you handle return codes to verify success in each operation.</li>
+</ul>
+</blockquote>
+<blockquote>
+<blockquote>
+<p><strong>Note on TCTI Support in TPM2-TSS:</strong></p>
+</blockquote>
+<ul>
+<li><strong>TCTI supports communication with TPM over various interfaces</strong>, including USB and I2C. This provides flexibility in connecting to different types of TPM devices, even in environments without TPM drivers or operating systems.<br><br></li>
+<li><strong><code>tcti-i2c-ftdi</code></strong>:<br>
+-  Used for communicating with <strong>I2C-based TPMs</strong>.<br>
+-  Applicable in cases where there is no TPM driver present or in systems with no operating system.<br>
+-  For more details, see <code>tcti-i2c-ftdi.md</code>.
+<br><br></li>
+<li><strong><code>tcti-spi-itt2go</code></strong>:<br>
+-  Specifically used for communication with the <strong>LetsTrust-TPM2Go</strong>, a USB stick housing an SPI-based TPM.<br>
+-  The SPI-based TPM is connected to the host via <strong>libusb</strong>.<br>
+-  For more details, see <code>tcti-spi-itt2go.md</code>.</li>
+</ul>
+</blockquote>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_1_2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_1_2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

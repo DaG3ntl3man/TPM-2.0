@@ -1,0 +1,75 @@
+@startuml
+title TPM Software Stack Architecture
+skinparam backgroundColor #F7F8FA
+skinparam defaultFontColor #333333
+skinparam linetype ortho
+skinparam rectangle {
+    BorderColor #333333
+    FontColor #333333
+    FontSize 12
+    Padding 15
+}
+skinparam arrow {
+    Color #333333
+    FontColor #333333
+    FontSize 12
+}
+skinparam package {
+  BackgroundColor<<System>> #F5F5DC
+  BackgroundColor<<Enhanced>> #D5E8D4
+  BackgroundColor<<Feature>> #FFEBB5
+  BackgroundColor<<Command>> #F8CECC
+  BackgroundColor<<Access>> #D5D5FF
+  BackgroundColor<<Driver>> #FFF2CC
+  BorderColor black
+  FontColor black
+}
+
+actor "Application" as App
+
+' Top Layer - TPM Software APIs'
+package "TPM Software APIs" {
+    package "System API (sys)" <<System>> {
+      note "• 1:1 to TPM2 commands\n• Command / Response serialization\n• No file I/O\n• No cryptographic operations\n• No dynamic memory allocation" as sys
+    }
+
+    package "Enhanced SYS (esys)" <<Enhanced>> {
+      note "• Automates cryptographic operations for HMAC / encrypted sessions\n• Supports dynamic TCTI loading\n• Handles memory allocations\n• No file I/O" as esys
+    }
+
+    package "Feature API (FAPI)" <<Feature>> {
+      note "• Specification released\n• Implementation completed\n• No custom typedefs\n• JSON-based interfaces\n• Provides Policy language\n• Includes keystore functionality" as fapi
+    }
+}
+
+' Second Layer - TPM Command Transmission Interface '
+package "TPM Command Transmission Interface (tss2-tcti)" <<Command>> {
+  note "• Abstracts command / response mechanism\n• Decouples APIs from command transport / IPC\n• No cryptographic operations, dynamic memory allocation, or file I/O\n• Supports dynamic loading via dlopen API" as tcti
+}
+
+' Third Layer - TPM Access Broker and Resource Manager '
+package "TPM Access Broker and Resource Manager (TAB/RM)" <<Access>> {
+  note "• Abstracts storage limitations\n• Manages power\n• No cryptographic operations" as tab_rm
+}
+
+' Bottom Layer - TPM Device Driver '
+package "TPM Device Driver" <<Driver>> {
+  note "• Device Interface (CRB / polling)\n• Handles pre-boot log handoff" as driver
+}
+
+' Define straight vertical connections between components in the hierarchy '
+sys -down-> esys : Extends
+esys -down-> fapi : Builds on
+fapi -down-> tcti : Interfaces with
+tcti -down-> tab_rm : Abstracts APIs
+tab_rm -down-> driver : Manages resources and power
+
+' Define straight horizontal application interaction with the TPM stack '
+App -right-> sys : Uses Developer API
+sys -right-> esys : Extends functionality
+esys -right-> fapi : Enhances features
+fapi -right-> tcti : Provides interface
+tcti -right-> tab_rm : Abstracts command transport
+tab_rm -right-> driver : Controls device
+
+@enduml 

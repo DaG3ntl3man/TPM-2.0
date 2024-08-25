@@ -1,0 +1,532 @@
+<!DOCTYPE HTML>
+<html lang="en" class="dark" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Primary key generation using ESAPI</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('dark')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><div>System S3cur1ty</div></li><li class="chapter-item expanded "><a href="chapter_main.html">Trusted Platform Module (TPM)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_1.html">Enhanced System API (ESAPI)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="chapter_1_1.html">How to get ESAPI talk 2 TPM?</a></li><li class="chapter-item expanded "><a href="chapter_1_2.html" class="active">Primary key generation using ESAPI</a></li><li class="chapter-item "><a href="chapter_1_3.html">Child key generation using ESAPI</a></li><li class="chapter-item "><a href="chapter_1_4.html">Enabling Parameter Encryption using ESAPI</a></li></ol></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="primary-key-generation-using-esapi"><a class="header" href="#primary-key-generation-using-esapi">Primary key generation using ESAPI</a></h1>
+<h3 id="1-initialize-the-esapi-context"><a class="header" href="#1-initialize-the-esapi-context">1. Initialize the ESAPI Context</a></h3>
+<p>Ensure the ESAPI context is initialized before any TPM operations.</p>
+<pre><code class="language-c">ESYS_CONTEXT *context;
+TSS2_RC rc = Esys_Initialize(&amp;context, NULL, NULL);
+if (rc != TSS2_RC_SUCCESS) {
+    // Handle initialization error
+}
+</code></pre>
+<h3 id="2-set-up-the-insensitive-structure"><a class="header" href="#2-set-up-the-insensitive-structure">2. Set Up the <code>inSensitive</code> Structure</a></h3>
+<p>The <code>inSensitive</code> structure holds the authorization value for the TPM key, usually a password.</p>
+<pre><code class="language-c">TPM2B_SENSITIVE_CREATE inSensitive = {0};
+TPM2B_SENSITIVE sensitive = {0};
+
+// Set up authorization value (e.g., password)
+sensitive.sensitive.data.size = strlen("your_password");
+memcpy(sensitive.sensitive.data.buffer, "your_password", sensitive.sensitive.data.size);
+
+inSensitive.sensitive = sensitive;
+</code></pre>
+<h3 id="3-define-the-inpublic-structure"><a class="header" href="#3-define-the-inpublic-structure">3. Define the <code>inPublic</code> Structure</a></h3>
+<p>Set the parameters for the TPM key, including key type, hash algorithm, and object attributes.</p>
+<pre><code class="language-c">TPM2B_PUBLIC inPublicEcc = {0};
+
+// Define the key type and parameters
+inPublicEcc.publicArea.type = TPM2_ALG_ECC;
+inPublicEcc.publicArea.nameAlg = TPM2_ALG_SHA256;
+
+// Set up object attributes (example: signing and encryption key)
+inPublicEcc.publicArea.objectAttributes = TPMA_OBJECT_DECRYPT | TPMA_OBJECT_SIGN_ENCRYPT | TPMA_OBJECT_FIXEDTPM | TPMA_OBJECT_FIXEDPARENT | TPMA_OBJECT_SENSITIVEDATAORIGIN;
+
+// Define the ECC parameters
+inPublicEcc.publicArea.parameters.eccDetail.symmetric.algorithm = TPM2_ALG_NULL;
+inPublicEcc.publicArea.parameters.eccDetail.scheme.scheme = TPM2_ALG_NULL;
+inPublicEcc.publicArea.parameters.eccDetail.curveID = TPM2_ECC_NIST_P256;
+inPublicEcc.publicArea.parameters.eccDetail.kdf.scheme = TPM2_ALG_NULL;
+
+// Set the size of the X and Y points (ECC specific)
+inPublicEcc.publicArea.unique.ecc.x.size = 32; // Example size for NIST P-256
+inPublicEcc.publicArea.unique.ecc.y.size = 32;
+</code></pre>
+<h3 id="4-set-up-additional-parameters"><a class="header" href="#4-set-up-additional-parameters">4. Set Up Additional Parameters</a></h3>
+<p>Prepare any additional parameters required for the key creation.</p>
+<pre><code class="language-c">TPM2B_DATA outsideInfo = {0}; // Arbitrary data for sealing
+TPML_PCR_SELECTION creationPCR = {0}; // PCR selection (empty if not used)
+</code></pre>
+<h3 id="5-create-the-primary-key"><a class="header" href="#5-create-the-primary-key">5. Create the Primary Key</a></h3>
+<p>Invoke <code>Esys_CreatePrimary</code> to create the primary key.</p>
+<pre><code class="language-c">TPM2B_PRIVATE outPrivate = {0};
+TPM2B_PUBLIC outPublic = {0};
+TPM2B_DATA creationData = {0};
+TPM2B_DIGEST creationHash = {0};
+TPMT_TK_CREATION creationTicket = {0};
+ESYS_TR primaryHandle;
+
+rc = Esys_CreatePrimary(
+    context, 
+    ESYS_TR_RH_OWNER, 
+    ESYS_TR_PASSWORD, 
+    ESYS_TR_NONE, 
+    ESYS_TR_NONE, 
+    &amp;inSensitive, 
+    &amp;inPublicEcc, 
+    &amp;outsideInfo, 
+    &amp;creationPCR, 
+    &amp;primaryHandle, 
+    &amp;outPublic, 
+    &amp;creationData, 
+    &amp;creationHash, 
+    &amp;creationTicket
+);
+
+if (rc != TSS2_RC_SUCCESS) {
+    // Handle error
+}
+</code></pre>
+<h3 id="6-clean-up"><a class="header" href="#6-clean-up">6. Clean Up</a></h3>
+<p>Flush the context and release any allocated resources.</p>
+<pre><code class="language-c">rc = Esys_FlushContext(context, primaryHandle);
+if (rc != TSS2_RC_SUCCESS) {
+    // Handle error
+}
+
+Esys_Finalize(&amp;context);
+</code></pre>
+<h3 id="rsa-key-example"><a class="header" href="#rsa-key-example">RSA Key Example</a></h3>
+<p>For an RSA key, the key creation setup would be similar but with RSA-specific parameters:</p>
+<pre><code class="language-c">TPM2B_PUBLIC inPublicRsa = {0};
+
+// Define the key type and parameters
+inPublicRsa.publicArea.type = TPM2_ALG_RSA;
+inPublicRsa.publicArea.nameAlg = TPM2_ALG_SHA256;
+
+// Set up object attributes (example: signing and encryption key)
+inPublicRsa.publicArea.objectAttributes = TPMA_OBJECT_DECRYPT | TPMA_OBJECT_SIGN_ENCRYPT | TPMA_OBJECT_FIXEDTPM | TPMA_OBJECT_FIXEDPARENT | TPMA_OBJECT_SENSITIVEDATAORIGIN;
+
+// Define RSA parameters
+inPublicRsa.publicArea.parameters.rsaDetail.symmetric.algorithm = TPM2_ALG_NULL;
+inPublicRsa.publicArea.parameters.rsaDetail.scheme.scheme = TPM2_ALG_NULL;
+inPublicRsa.publicArea.parameters.rsaDetail.keyBits = 2048; // Example RSA key size
+inPublicRsa.publicArea.parameters.rsaDetail.exponent = 0; // Default exponent
+</code></pre>
+<h3 id="heres-the-complete-code-for-primarykeygenc"><a class="header" href="#heres-the-complete-code-for-primarykeygenc">Here's the complete code for primaryKeyGen.c</a></h3>
+<pre><code class="language-c runnable">/* 
+ * This file is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This file is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this file. If not, see &lt;https://www.gnu.org/licenses/&gt;.
+ */
+
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;tss2/tss2_esys.h&gt;
+#include &lt;tss2/tss2_tctildr.h&gt;
+#include &lt;tss2/tss2_tcti.h&gt;
+
+#define RANDOM_BYTES_COUNT 20
+
+int main() {
+    TSS2_RC ret;
+    TSS2_TCTI_CONTEXT *tcti;
+
+    /* Do not forget to start the TPM simulator before launching this app */
+    ret = Tss2_TctiLdr_Initialize("mssim:host=127.0.0.1,port=2321", &amp;tcti);
+    if (ret != TSS2_RC_SUCCESS) {
+        printf("\nError: Tss2_TctiLdr_Initialize\n");
+        return 1;
+    }
+
+    /* Initialize the ESAPI context */
+    ESYS_CONTEXT *ctx;
+    ret = Esys_Initialize(&amp;ctx, tcti, NULL);
+    if (ret != TSS2_RC_SUCCESS) {
+        printf("\nError: Esys_Initialize\n");
+        return 1;
+    }
+
+    /* Start TPM */
+    ret = Esys_Startup(ctx, TPM2_SU_CLEAR);
+    if (ret != TSS2_RC_SUCCESS) {
+        printf("\nError: Esys_Startup\n");
+        Esys_Finalize(&amp;ctx);
+        return 1;
+    }
+
+    /* Set up the inSensitive structure */
+    TPM2B_SENSITIVE_CREATE inSensitive = {0};
+    inSensitive.sensitive.userAuth.size = 0; // No authorization data
+    inSensitive.sensitive.data.size = 0;     // No extra data
+
+    /* Set up the inPublic structure */
+    TPM2B_PUBLIC inPublic = {0};
+    inPublic.publicArea.type = TPM2_ALG_ECC;
+    inPublic.publicArea.nameAlg = TPM2_ALG_SHA256;
+    inPublic.publicArea.objectAttributes = TPMA_OBJECT_DECRYPT | TPMA_OBJECT_SIGN_ENCRYPT | TPMA_OBJECT_FIXEDTPM | TPMA_OBJECT_FIXEDPARENT | TPMA_OBJECT_SENSITIVEDATAORIGIN;
+    inPublic.publicArea.parameters.eccDetail.symmetric.algorithm = TPM2_ALG_NULL;
+    inPublic.publicArea.parameters.eccDetail.scheme.scheme = TPM2_ALG_NULL;
+    inPublic.publicArea.parameters.eccDetail.curveID = TPM2_ECC_NIST_P256;
+    inPublic.publicArea.parameters.eccDetail.kdf.scheme = TPM2_ALG_NULL;
+
+    /* Additional setup */
+    TPM2B_DATA outsideInfo = {0}; // Arbitrary data for sealing
+    TPML_PCR_SELECTION creationPCR = {0}; // PCR selection (empty if not used)
+
+    TPM2B_PUBLIC *outPublic = NULL;
+    TPM2B_CREATION_DATA *creationData = NULL;
+    TPM2B_DIGEST *creationHash = NULL;
+    TPMT_TK_CREATION *creationTicket = NULL;
+    ESYS_TR primaryHandle;
+
+    /* Create the primary key */
+    ret = Esys_CreatePrimary(
+        ctx,
+        ESYS_TR_RH_OWNER,
+        ESYS_TR_PASSWORD,
+        ESYS_TR_NONE,
+        ESYS_TR_NONE,
+        &amp;inSensitive,
+        &amp;inPublic,
+        &amp;outsideInfo,
+        &amp;creationPCR,
+        &amp;primaryHandle,
+        &amp;outPublic,
+        &amp;creationData,
+        &amp;creationHash,
+        &amp;creationTicket
+    );
+
+    if (ret != TSS2_RC_SUCCESS) {
+        printf("\nError: Esys_CreatePrimary\n");
+        Esys_FlushContext(ctx, primaryHandle);
+        Esys_Finalize(&amp;ctx);
+        return 1;
+    }
+
+    printf("Primary key created successfully. Handle: %u\n", primaryHandle);
+
+    /* Get random data */
+    TPM2B_DIGEST *random_bytes;
+    ret = Esys_GetRandom(ctx, ESYS_TR_NONE, ESYS_TR_NONE, ESYS_TR_NONE,
+                       RANDOM_BYTES_COUNT, &amp;random_bytes);
+
+    if (ret != TSS2_RC_SUCCESS) {
+        printf("\nError: Esys_GetRandom\n");
+        Esys_FlushContext(ctx, primaryHandle);
+        Esys_Finalize(&amp;ctx);
+        return 1;
+    }
+
+    if (random_bytes-&gt;size == RANDOM_BYTES_COUNT) {
+        printf("Received %u random bytes from the TPM:\n", random_bytes-&gt;size);
+        for (int i = 0; i &lt; random_bytes-&gt;size; i++) {
+            printf("0x%x ", random_bytes-&gt;buffer[i]);
+        }
+        printf("\n");
+    } else {
+        printf("\nInsufficient number of random bytes\n");
+        printf("Expected: %u. Available: %u.\n",
+                RANDOM_BYTES_COUNT, random_bytes-&gt;size);
+    }
+
+    /* Clean up */
+    Esys_FlushContext(ctx, primaryHandle);
+    Esys_Finalize(&amp;ctx);
+    return 0;
+}
+</code></pre>
+<h3 id="to-compile-this-code-first-you-will-have-had-to-set-up-the-lab"><a class="header" href="#to-compile-this-code-first-you-will-have-had-to-set-up-the-lab">To compile this code, first you will have had to set up the lab.</a></h3>
+<p><img src="./Lab_Setup.JPG" alt="Lab Environment Setup" /></p>
+<p>After the lab has been set,</p>
+<ul>
+<li>
+<h4 id="run-docker"><a class="header" href="#run-docker">Run docker</a></h4>
+</li>
+</ul>
+<pre><code>docker run --platform=linux/amd64 -it -d -e TPM2TOOLS_TCTI=mssim:host=localhost,port=2321 0ffabc
+</code></pre>
+<ul>
+<li>
+<h4 id="attach-the-image"><a class="header" href="#attach-the-image">Attach the image</a></h4>
+</li>
+</ul>
+<p>In your it will be the same name you provided when downloading the docker image</p>
+<pre><code>docker attach tpmlab
+</code></pre>
+<ul>
+<li>
+<h4 id="start-tpm2-simulator"><a class="header" href="#start-tpm2-simulator">Start TPM2 Simulator</a></h4>
+</li>
+</ul>
+<pre><code>tpm2_startup -c
+</code></pre>
+<p>To verify if it's running, run the command <code>$tpm2_startup -c</code></p>
+<ul>
+<li>
+<h4 id="verifying-the-lab-env"><a class="header" href="#verifying-the-lab-env">Verifying the lab env</a></h4>
+</li>
+</ul>
+<pre><code>pm2_getrandom 8 &gt; randombytes
+</code></pre>
+<p>This command ⬇️</p>
+<pre><code>xxd randombytes
+</code></pre>
+<p>should return you this <code>00000000: f36b d063 90c2 3d13                      .k.c..=.</code></p>
+<p>Once you are in the lab server, in the /lab path, you will see these folders, which will be visible only after the local env is able to talk to the docker.<br>
+<img src="./ls_lab.JPG" alt="/lab files" /></p>
+<h3 id="now-its-time-to-compile-the-code"><a class="header" href="#now-its-time-to-compile-the-code">Now it's time to compile the code</a></h3>
+<p>There's already a Makefile in the /lab subpath,</p>
+<ul>
+<li>
+<h5 id="run-makefile"><a class="header" href="#run-makefile">Run Makefile</a></h5>
+</li>
+</ul>
+<p><code>$make</code></p>
+<ul>
+<li>
+<h5 id="run-executable"><a class="header" href="#run-executable">Run executable</a></h5>
+</li>
+</ul>
+<p><code>./esapilab</code></p>
+<ul>
+<li>
+<h5 id="it-should-return-you-a-primary-key"><a class="header" href="#it-should-return-you-a-primary-key">It should return you a Primary Key</a></h5>
+</li>
+</ul>
+<p><code>Which looks something like this</code></p>
+<p><img src="./primaryKeyGen.JPG" alt="something like this" /></p>
+<h3 id="references"><a class="header" href="#references">References:</a></h3>
+<ul>
+<li>
+<p><a href="https://tpm2-tss.readthedocs.io/en/latest/group__esys__int.html#struct_e_s_y_s___c_o_n_t_e_x_t">ESYS_CONTEXT</a></p>
+</li>
+<li>
+<p><a href="https://tpm2-tss.readthedocs.io/en/latest/group___e_s_y_s___c_o_n_t_e_x_t.html#gaa48ea7753fd0078f580f9afa7421d583">Esys_Initialize()</a></p>
+</li>
+<li>
+<p><a href="https://tpm2-tss.readthedocs.io/en/stable/group___esys___get_random.html">Esys_GetRandom()</a></p>
+</li>
+</ul>
+<h3 id="time-to-take-a-breather"><a class="header" href="#time-to-take-a-breather">TIME TO TAKE A BREATHER</a></h3>
+<hr />
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_1_1.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_1_3.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_1_1.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_1_3.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

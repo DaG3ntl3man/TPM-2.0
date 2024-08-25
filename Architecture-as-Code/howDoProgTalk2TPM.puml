@@ -1,0 +1,41 @@
+@startuml
+title How Programs Communicate with the TPM
+
+actor "Application" as App
+
+box "TPM Software Stack (TSS)" #F8E8E3
+  participant "TSS API" as TSS
+  note right of TSS
+    - Provides a developer-friendly interface
+    - Translates high-level API calls into TPM commands
+    - Hides complexity from the developer
+  end note
+end box
+
+box "Communication Layer" #E3D3C4
+  participant "TPM Driver" as TPMDriver
+  note right of TPMDriver
+    - Handles TCTI communication
+    - Implementation varies by OS:
+      - Linux: Kernel driver
+      - Windows: TBS service
+      - Baremetal: Custom I/O driver
+      - Software: IPC (Inter-process communication)
+  end note
+end box
+
+box "Hardware Layer" #B85042
+  participant "Physical Layer (SPI/I2C)" as PhysicalLayer
+  participant "TPM (Trusted Platform Module)" as TPM
+  note right of PhysicalLayer
+    - SPI (Serial Peripheral Interface)
+    - I2C (Inter-Integrated Circuit)
+  end note
+end box
+
+App -> TSS : Uses Developer API
+TSS -> TPMDriver : Translates API to TPM commands
+TPMDriver -> PhysicalLayer : Communicates via SPI/I2C
+PhysicalLayer -> TPM : Direct hardware interaction
+
+@enduml

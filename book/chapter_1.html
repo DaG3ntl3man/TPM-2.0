@@ -1,0 +1,322 @@
+<!DOCTYPE HTML>
+<html lang="en" class="dark" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Enhanced System API (ESAPI)</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('dark')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><div>System S3cur1ty</div></li><li class="chapter-item expanded "><a href="chapter_main.html">Trusted Platform Module (TPM)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="chapter_1.html" class="active">Enhanced System API (ESAPI)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="chapter_1_1.html">How to get ESAPI talk 2 TPM?</a></li><li class="chapter-item "><a href="chapter_1_2.html">Primary key generation using ESAPI</a></li><li class="chapter-item "><a href="chapter_1_3.html">Child key generation using ESAPI</a></li><li class="chapter-item "><a href="chapter_1_4.html">Enabling Parameter Encryption using ESAPI</a></li></ol></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="enhanced-system-api-esapi"><a class="header" href="#enhanced-system-api-esapi">Enhanced System API (ESAPI)</a></h1>
+<p>ESAPI of the tpm2-tss (TPM 2.0 Software Stack)</p>
+<h4 id="discussion"><a class="header" href="#discussion">Discussion:</a></h4>
+<blockquote>
+<p>In rich OS environments it is unlikely to use <strong>SAPI as it requires extra manual steps and computation to enable the TPM's built-in MITM protection</strong>. Thus, ESAPI is the preferred choice for Rich OS like Windows &amp; Linux, and desktop and server applications (also go-tpm is great for server side application but it does not comply with the SAPI/ESAPI/FAPI TCG definition). <br><br>
+<a href="https://www.kernel.org/doc/html/latest/security/tpm/tpm_vtpm_proxy.html">Virtual vTPM Proxy Driver for Linux Containers</a></p>
+</blockquote>
+<h4 id="how-do-programs-talk-to-the-tpm"><a class="header" href="#how-do-programs-talk-to-the-tpm">How do programs talk to the TPM?</a></h4>
+<p>--&gt; It mainly requires a communication driver and a TPM software stack (TSS)</p>
+<p align="center">
+  <img src="./howDoProgTalk2TPM.svg">
+</p>
+<p>When using a TPM Software Stack (TSS) to communicate with a TPM, TSS API calls are issued by the developer. The TSS then translates these API calls into TPM commands, which are forwarded to the TPM Command Transmission Interface (TCTI). This process is abstracted from the developer by the TSS, which simplifies interaction with the TPM.</p>
+<p>The TSS still requires specific drivers to send these commands to the actual TPM, depending on the operating system and TPM configuration. The handling of these commands is managed as follows:</p>
+<ul>
+<li>Linux: Kernel driver</li>
+<li>Windows: TBS (Trusted Platform Module Base Services) service</li>
+<li>Baremetal: Custom I/O driver</li>
+<li>Software: IPC (Inter-process communication)</li>
+</ul>
+<br>
+<hr />
+<br>
+<p align="center">
+  <img src="./ESAPI_in_tpm2-tss.svg">
+</p>
+<h4 id="why-esapi-over-sapi"><a class="header" href="#why-esapi-over-sapi">Why ESAPI over SAPI?</a></h4>
+<ul>
+<li>
+<p>SAPI (System API) provides low-level marshaling/unmarshalling for TPM commands and responses, requiring developers to manually manage cryptographic operations when creating TPM sessions.</p>
+</li>
+<li>
+<p>ESAPI (Enhanced System API) builds on top of SAPI, automatically tracking TPM object metadata and managing session authorizations and encryption calculations, simplifying session handling.</p>
+</li>
+<li>
+<p>While SAPI provides more granular control, ESAPI abstracts much of the complexity, automating tasks like session encryption and authorizations.</p>
+</li>
+<li>
+<p>FAPI (Feature API) further abstracts TPM interactions but at the cost of reduced control, as it uses default flags and settings. It also introduces a policy definition language in JSON for easier management of TPM policies.<br />
+<br></p>
+</li>
+</ul>
+<blockquote>
+<p><span style="color:#B9A0DC"><strong>Raj:</strong></span> "So, Howard, what's the deal with this whole ESAPI and TPM thing?"<br><br>
+<span style="color:#DD4124"><strong>Howard:</strong></span> "Oh, it’s simple. SAPI is like that nerdy guy at the bar, sweating buckets, trying to figure out what to say. Meanwhile, ESAPI walks in, cool as a cucumber, slides up to TPM and goes, ‘Hey, baby, I’ve already got your encryption handled. You need session authorization? I got you.’ TPM’s all like, ‘Where have you been all my life?’"<br><br>
+<span style="color:#B9A0DC"><strong>Raj:</strong></span> "So, ESAPI’s basically the smooth operator?"<br><br>
+<span style="color:#DD4124"><strong>Howard:</strong></span> "Exactly. SAPI fumbles, stumbles, and somehow locks itself out. But ESAPI? It’s got TPM wrapped around its little... byte."<br><br>
+<span style="color:#88B04B"><strong>Leonard:</strong></span> "So, it's like you versus Sheldon with women?"<br><br>
+<span style="color:#DD4124"><strong>Howard:</strong></span> "No, no, no—I'm ESAPI, Sheldon’s SAPI. He’s still trying to figure out what cryptography even is while I'm already running encryption like it’s date night at the Cheesecake Factory!"<br><br>
+<span style="color:#6A8AB0"><strong>Sheldon:</strong></span> "I find that metaphor highly inaccurate, yet oddly complimentary. Proceed."</p>
+</blockquote>
+<div style="display: flex; justify-content: space-between; background: transparent; padding: 0; margin: 0;">
+    <iframe src="https://giphy.com/embed/KAS81mpeo9kkw" width="350" height="253" style="border:0; background: transparent;" class="giphy-embed" allowFullScreen></iframe>
+    <iframe src="https://giphy.com/embed/1xVfByxByNvUiclzzL" width="330" height="330" style="border:0; background: transparent;" class="giphy-embed" allowFullScreen></iframe>
+</div>
+<!-- 
+```plantuml
+@startuml
+title How Programs Communicate with the TPM
+
+actor "Application" as App
+
+box "TPM Software Stack (TSS)" #F8E8E3
+  participant "TSS API" as TSS
+  note right of TSS
+    - Provides a developer-friendly interface
+    - Translates high-level API calls into TPM commands
+    - Hides complexity from the developer
+  end note
+end box
+
+box "Communication Layer" #E3D3C4
+  participant "TPM Driver" as TPMDriver
+  note right of TPMDriver
+    - Handles TCTI communication
+    - Implementation varies by OS:
+      - Linux: Kernel driver
+      - Windows: TBS service
+      - Baremetal: Custom I/O driver
+      - Software: IPC (Inter-process communication)
+  end note
+end box
+
+box "Hardware Layer" #B85042
+  participant "Physical Layer (SPI/I2C)" as PhysicalLayer
+  participant "TPM (Trusted Platform Module)" as TPM
+  note right of PhysicalLayer
+    - SPI (Serial Peripheral Interface)
+    - I2C (Inter-Integrated Circuit)
+  end note
+end box
+
+App -> TSS : Uses Developer API
+TSS -> TPMDriver : Translates API to TPM commands
+TPMDriver -> PhysicalLayer : Communicates via SPI/I2C
+PhysicalLayer -> TPM : Direct hardware interaction
+
+@enduml
+``` -->
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="chapter_main.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="chapter_1_1.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="chapter_main.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="chapter_1_1.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
